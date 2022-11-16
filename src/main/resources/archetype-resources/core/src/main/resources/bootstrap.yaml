@@ -1,0 +1,95 @@
+server:
+   port: 8000
+   shutdown: "graceful"
+management:
+   server:
+      port: 8001
+   endpoints:
+      web:
+         exposure:
+            include: "health,prometheus"
+   metrics:
+      export:
+         export:
+            prometheus:
+               enabled: true
+spring:
+   profiles:
+      active: "dev"
+   application:
+      name: ${parentArtifactId}
+   jackson:
+      default-property-inclusion: non_null
+      time-zone: "GMT+8"
+      date-format: "yyyy-MM-dd HH:mm:ss"
+   lifecycle:
+      timeout-per-shutdown-phase: "20s"
+mybatis:
+   mapper-locations: "classpath*:mybatis/*.xml"
+   type-aliases-package: "${package}.api.dto,;${package}.core.db.dataobject,;"
+   configuration:
+      map-underscore-to-camel-case: true
+
+---
+spring:
+   config:
+      activate:
+         on-profile: "dev"
+   cloud:
+      nacos:
+         config:
+            server-addr: 
+            namespace: 
+            group: ${parentArtifactId}
+            file-extension: yaml
+         discovery:
+            server-addr: 
+            namespace: 
+            metadata:
+               prometheus:
+                  port: ${management.server.port}
+                  job_name: ${spring.application.name}
+                  metrics_path: "/actuator/prometheus"
+               
+
+---
+spring:
+   config:
+      activate:
+         on-profile: "test"
+   cloud:
+      nacos:
+         config:
+            server-addr: 
+            namespace: 
+            group: ${parentArtifactId}
+            file-extension: yaml
+         discovery:
+            server-addr: 
+            namespace: 
+            metadata:
+               prometheus:
+                  port: ${management.server.port}
+                  job_name: ${spring.application.name}
+                  metrics_path: "/actuator/prometheus"
+
+---
+spring:
+   config:
+      activate:
+         on-profile: "prod"
+   cloud:
+      nacos:
+         config:
+            server-addr: 
+            namespace: 
+            group: ${parentArtifactId}
+            file-extension: yaml
+         discovery:
+            server-addr: 
+            namespace: 
+            metadata:
+               prometheus:
+                  port: ${management.server.port}
+                  job_name: ${spring.application.name}
+                  metrics_path: "/actuator/prometheus"
